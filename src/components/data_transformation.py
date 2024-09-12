@@ -62,12 +62,29 @@ class DataTransformation:
                 test_df = process_time_column(test_df)
 
                 preprocessing_obj = self.get_data_transformer_object()
+                # scaler = MinMaxScaler()
 
                 logging.info("Applying transformations to train and test data")
 
                 # Fit the preprocessor on training data and transform both train and test data
                 input_features_train_transformed = preprocessing_obj.fit_transform(train_df)
                 input_features_test_transformed = preprocessing_obj.transform(test_df)
+
+                # Create sequences of data
+                sequence_length = 10
+
+                # Function to create sequences
+                def create_sequences(data, sequence_length):
+                    X = []
+                    for i in range(len(data) - sequence_length + 1):
+                        X.append(data[i:i + sequence_length])
+                    return np.array(X)
+
+                # Create sequences for training and testing data
+                X_train = create_sequences(input_features_train_transformed, sequence_length)
+                X_test = create_sequences(input_features_test_transformed, sequence_length)
+
+                logging.info(f"Created sequences for train and test data with sequence length {sequence_length}.")
 
                 logging.info("Data transformation completed.")
 
@@ -81,8 +98,8 @@ class DataTransformation:
 
                 # Return the transformed training and test data, along with the preprocessor path
                 return (
-                    input_features_train_transformed,  # Transformed training data (no target)
-                    input_features_test_transformed,   # Transformed test data (no target)
+                    X_train,  # Transformed training data (no target)
+                    X_test,   # Transformed test data (no target)
                     self.data_transformation_config.preprocessor_obj_file_path,  # Path to saved preprocessor object
                 )  
 
