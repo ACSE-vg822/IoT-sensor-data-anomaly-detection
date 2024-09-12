@@ -3,13 +3,13 @@
 This repository contains a **Streamlit** app for detecting anomalies in IoT sensor data using an LSTM-based machine learning model. The app allows users to upload sensor data, process it, and visualize detected anomalies against the training data. https://iot-sensor-data-anomaly-detection-zqbd3yzrtsnnhnwhbm4bcs.streamlit.app/
 
 ## References
-Data taken from: https://github.com/hkayann/grove-dataset-generation
+Data source: https://github.com/hkayann/grove-dataset-generation
 Description as taken from the source:
-- Contains timestamp, humidity, temperature, light, loudness, and air quality data in order.
+- Contains humidity, temperature, light, loudness, and air quality data in order.
 - Environment is 25 m2 studio room contains 2 people.
 - Data is collected from 10/03/2021 18:36 PM to 11/03/2021 18.36 PM.
 - Data might be considered as normal, there are no anomalies created on purpose.
-
+- The groveHighAccTempDataset contains timestamp + temperature data. Environment is the same.
 
 ## Features
 - Upload a custom CSV file or use the default dataset provided.
