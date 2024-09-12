@@ -6,4 +6,5 @@ tensorflow
 seaborn
 matplotlib
 Flask
-#-e .
+streamlit
+-e .
