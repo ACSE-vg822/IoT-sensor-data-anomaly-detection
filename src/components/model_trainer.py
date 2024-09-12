@@ -10,9 +10,12 @@ from src.exception import CustomException
 from src.logger import logging
 from src.utils import save_object
 
+import numpy as np
+
 @dataclass
 class ModelTrainerConfig:
     trained_model_file_path = os.path.join("artifacts", "model_new.keras")
+    errors_file_path = os.path.join("artifacts", "errors.txt")
 
 class ModelTRainer:
     def __init__(self):
@@ -76,8 +79,28 @@ class ModelTRainer:
             logging.info("Model training completed.")
 
             # Save the trained model
-            model.save(self.model_trainer_config.trained_model_file_path)
+            # model.save(self.model_trainer_config.trained_model_file_path)
             logging.info(f"Model saved at {self.model_trainer_config.trained_model_file_path}")
+
+            # Make predictions
+            logging.info("Generating predictions for training and test data")
+            train_predictions = model.predict(X_train)
+            test_predictions = model.predict(X_test)
+
+            # Calculate reconstruction errors for training and test data
+            train_reconstruction_error = np.mean(np.square(X_train - train_predictions), axis=(1, 2))
+            test_reconstruction_error = np.mean(np.square(X_test - test_predictions), axis=(1, 2))
+
+            # Save reconstruction errors and threshold
+            threshold = np.percentile(train_reconstruction_error, 99)  # 99th percentile as threshold
+
+            logging.info(f"Saving reconstruction errors and threshold to {self.model_trainer_config.errors_file_path}")
+
+            # Save the threshold and reconstruction errors
+            with open(self.model_trainer_config.errors_file_path, 'w') as f:
+                f.write(f"Threshold: {threshold}\n")
+
+            logging.info("Threshold saved.")
 
             return self.model_trainer_config.trained_model_file_path
         
