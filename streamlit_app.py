@@ -51,8 +51,8 @@ if st.button("Start Prediction"):
         train_df.set_index('Time', inplace=True)
 
     # Show the first few rows of the training dataset with human-readable time
-    st.write("Training dataset with human-readable time:")
-    st.write(train_df.head())
+    # st.write("Sample rows from training dataset:")
+    # st.write(train_df.head())
 
     # Create a prediction pipeline object
     predictor = PredictionPipeline()
