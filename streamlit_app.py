@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from src.pipeline.predict_pipeline import PredictionPipeline
 import os
+import time  # Import the time module for sleep
 
+# Function to plot training data with anomalies
 def plot_train_data_with_anomalies(df, anomalies_df):
     # Iterate over each sensor/column in the DataFrame
     for col in df.columns:
@@ -19,77 +21,96 @@ def plot_train_data_with_anomalies(df, anomalies_df):
             plt.scatter(anomalies_df.index, anomalies_df[col], color='red', marker='o', label=f'Anomalies in {col}', s=100, zorder=5)  # Set the size of the dots (s=100)
         
         # Set titles and labels
-        plt.title(f'{col} Sensor Data with Anomalies')
-        plt.xlabel('Time')
-        plt.ylabel(col)
-        plt.legend()
+        plt.title(f'{col} Sensor Data with Anomalies', fontsize=16)
+        plt.xlabel('Time', fontsize=14)
+        plt.ylabel(col, fontsize=14)
+        plt.legend(fontsize=12)
         plt.grid(True)
         
         # Display the plot in Streamlit
         st.pyplot(plt)
 
-# Paths to default CSV files
-DEFAULT_CSV_PATH = 'artifacts/test.csv'
-DATA_CSV_PATH = 'artifacts/data.csv'  # Path to the raw dataset
+# Custom CSS Styling
+st.markdown("""
+    <style>
+    .title h1 {
+        font-size: 36px;  /* Adjust the size to fit on one line */
+        white-space: nowrap;  /* Prevent the title from wrapping */
+    }
+    .main {
+        background-color: #f0f2f6;
+        font-family: 'Roboto', sans-serif;
+    }
+    h1, h2, h3 {
+        color: #003366;
+    }
+    .sidebar .sidebar-content {
+        background-color: #fafafa;
+        color: #003366;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-# Title of the Streamlit app
-st.title("Anomaly Detection in IoT Sensor Data")
+# Sidebar Navigation
+st.sidebar.title("Anomaly Detection Dashboard")
+st.sidebar.subheader("Choose Your Options")
+uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
+use_default = st.sidebar.checkbox("Use default dataset (test data from source repo)", value=True)
 
-# Section to upload a CSV file
-st.subheader("Upload a CSV File or Use Default")
+# Main Title
+#st.title("Anomaly Detection in IoT Sensor Data")
+st.markdown('<div class="title"><h1>Anomaly Detection in IoT Sensor Data</h1></div>', unsafe_allow_html=True)
 
-# File uploader
-uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
-
-# Checkbox for using default dataset
-use_default = st.checkbox("Use default dataset(test set from the source repo) instead of uploading")
+# Progress Bar
+progress_bar = st.sidebar.progress(0)
 
 # Button for user confirmation and starting prediction
-if st.button("Start Prediction"):
+if st.sidebar.button("Start Prediction"):
     # Load the CSV file
     if uploaded_file is not None and not use_default:
-        # If the user uploads a file, load it into a DataFrame
         df = pd.read_csv(uploaded_file)
         st.success("File uploaded successfully!")
     else:
-        # If no file is uploaded or the user selects the checkbox, use the default file
-        st.info(f"Using default file: {DEFAULT_CSV_PATH}")
-        df = pd.read_csv(DEFAULT_CSV_PATH)
+        st.info(f"Using default dataset from source")
+        df = pd.read_csv('artifacts/test.csv')
 
     # Convert 'Time' column to human-readable format if it exists
     if 'Time' in df.columns:
-        df['Time'] = pd.to_datetime(df['Time'], unit='s')  # Assuming Unix timestamps in seconds
+        df['Time'] = pd.to_datetime(df['Time'], unit='s')
         df.set_index('Time', inplace=True)
 
-    # Show the first few rows of the dataset with human-readable time
-    st.write("Sample rows from chosen dataset:")
+    # Display the dataset
+    st.subheader("Chosen Dataset Preview")
     st.write(df.head())
 
-    # Step 1: Load the raw dataset
-    raw_df = pd.read_csv(DATA_CSV_PATH)
+    # Load the raw dataset
+    raw_df = pd.read_csv('artifacts/data.csv')
 
-    # Convert 'Time' column in  data to human-readable format if it exists
     if 'Time' in raw_df.columns:
-        raw_df['Time'] = pd.to_datetime(raw_df['Time'], unit='s')  # Assuming Unix timestamps
+        raw_df['Time'] = pd.to_datetime(raw_df['Time'], unit='s')
         raw_df.set_index('Time', inplace=True)
-    st.write("Sample rows from training dataset:")
-    st.write(raw_df.head())
-    # Create a prediction pipeline object
+
+    # Create prediction pipeline
     predictor = PredictionPipeline()
+
+    # Simulate progress
+    for i in range(100):
+        progress_bar.progress(i + 1)
+        time.sleep(0.05)  # Use time.sleep instead of st.sleep
 
     # Predict anomalies
     results = predictor.predict(df)
-    
-    # Check if any anomalies were found
+
+    # Check if anomalies are found
     if results["anomalies"].any():
         st.error("Anomalies found!")
         st.write("Anomalous data points:")
         st.write(results["anomalous_data"])
 
-       # Plot the training data with anomalies overlaid
+        # Plot training data with anomalies
         plot_train_data_with_anomalies(raw_df, results["anomalous_data"])
 
-        # Optionally, allow the user to download the anomalous data
+        # Download button for anomalous data
         st.download_button(
             label="Download Anomalous Data",
             data=results["anomalous_data"].to_csv(index=False),
@@ -98,3 +119,6 @@ if st.button("Start Prediction"):
         )
     else:
         st.success("No anomalies found!")
+
+# Progress Completion
+progress_bar.empty()
