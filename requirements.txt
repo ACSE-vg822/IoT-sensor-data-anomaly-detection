@@ -1,8 +1,9 @@
-pandas
+jupyter
 numpy
-seaborn
-matplotlib
+pandas
 scikit-learn
 tensorflow
+seaborn
+matplotlib
 Flask
--e .
+#-e .
