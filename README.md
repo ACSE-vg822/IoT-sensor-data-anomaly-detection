@@ -32,8 +32,8 @@ Description as taken from the source:
 
 ### Clone the repository
 ```bash
-git clone https://github.com/your-username/anomaly-detection-iot.git
-cd anomaly-detection-iot
+git clone https://github.com/your-username/IoT-sensor-data-anomaly-detection.git
+cd IoT-sensor-data-anomaly-detection-iot
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
