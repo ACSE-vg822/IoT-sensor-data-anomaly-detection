@@ -10,9 +10,7 @@ from dataclasses import dataclass
 
 from sklearn.preprocessing import MinMaxScaler
 
-from src.components.data_transformation import DataTransformation
-#from src.components.data_transformation import DataTransformationConfig
-from src.components.model_trainer import ModelTRainer
+from src.components.model_trainer import ModelTrainer
 
 @dataclass
 class DataIngestionConfig:
@@ -74,5 +72,5 @@ if __name__ == "__main__":
     obj = DataIngestion()
     train_data, test_data = obj.initiate_data_ingestion()
     
-    modeltrainer = ModelTRainer()
+    modeltrainer = ModelTrainer()
     print(modeltrainer.initiate_model_trainer(train_data, test_data))
