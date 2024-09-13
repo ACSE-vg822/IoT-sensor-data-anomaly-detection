@@ -51,9 +51,11 @@ class PredictionPipeline:
         except Exception as e:
             raise CustomException(e, sys)
 
-    def predict(self, df):
+    def predict(self, df, seq_length = 10):
         """ Main function to predict anomalies on the custom input DataFrame. """
         try:
+            if len(df) < seq_length:
+                return (f"The dataset is too small. Please provide at least {seq_length} rows of data.")
             # Step 1: Load the saved LSTM model
             logging.info(f"Loading model from {self.config.model_file_path}")
             model = load_model(self.config.model_file_path)

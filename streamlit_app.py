@@ -100,25 +100,27 @@ if st.sidebar.button("Start Prediction"):
 
     # Predict anomalies
     results = predictor.predict(df)
-
-    # Check if anomalies are found
-    if results["anomalies"].any():
-        st.error("Anomalies found!")
-        st.write("Anomalous data points:")
-        st.write(results["anomalous_data"])
-
-        # Plot training data with anomalies
-        plot_train_data_with_anomalies(raw_df, results["anomalous_data"])
-
-        # Download button for anomalous data
-        st.download_button(
-            label="Download Anomalous Data",
-            data=results["anomalous_data"].to_csv(index=False),
-            file_name="anomalous_data.csv",
-            mime="text/csv"
-        )
+    if isinstance(results, str):
+        st.error(results)  # Display the error message
     else:
-        st.success("No anomalies found!")
+        # Check if anomalies are found
+        if results["anomalies"].any():
+            st.error("Anomalies found!")
+            st.write("Anomalous data points:")
+            st.write(results["anomalous_data"])
 
-# Progress Completion
-progress_bar.empty()
+            # Plot training data with anomalies
+            plot_train_data_with_anomalies(raw_df, results["anomalous_data"])
+
+            # Download button for anomalous data
+            st.download_button(
+                label="Download Anomalous Data",
+                data=results["anomalous_data"].to_csv(index=False),
+                file_name="anomalous_data.csv",
+                mime="text/csv"
+            )
+        else:
+            st.success("No anomalies found!")
+
+    # Progress Completion
+    progress_bar.empty()
