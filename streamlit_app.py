@@ -68,8 +68,12 @@ progress_bar = st.sidebar.progress(0)
 if st.sidebar.button("Start Prediction"):
     # Load the CSV file
     if uploaded_file is not None and not use_default:
-        df = pd.read_csv(uploaded_file)
-        st.success("File uploaded successfully!")
+        if uploaded_file.size == 0:
+            st.error("The uploaded file is empty. Please upload a valid CSV file.")
+            st.stop()
+        else:
+            df = pd.read_csv(uploaded_file)
+            st.success("File uploaded successfully!")
     else:
         st.info(f"Using default dataset from source")
         df = pd.read_csv('artifacts/test.csv')
