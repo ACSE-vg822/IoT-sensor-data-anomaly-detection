@@ -48,15 +48,14 @@ IoT-sensor-data-anomaly-detection/
 │   ├── pipeline/
 │   │   └── predict_pipeline.py   
 │   └── components/ 
-│       ├── data_ingestion.py 
-│       ├── data_transformation.py
-│       └── model_trainer.py         
-├── artifacts/                    
-│   ├── model.pkl
-│   ├── train.csv
-│   ├── test.csv                
-│   └── data.csv                  
+│   │    ├── data_ingestion.py 
+│   │    └── model_trainer.py 
+│   ├── exception.py
+│   └── logger.py
 │
+├── artifacts/                    
+│   ├── model_new.keras             
+│   └── data.csv                  
 ├── streamlit_app.py               
 ├── requirements.txt
 ├── setup.py             
