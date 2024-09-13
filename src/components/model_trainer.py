@@ -86,6 +86,7 @@ class ModelTRainer:
             logging.info("Generating predictions for training and test data")
             train_predictions = model.predict(X_train)
             test_predictions = model.predict(X_test)
+            logging.info((X_train.shape, X_test.shape))
 
             # Calculate reconstruction errors for training and test data
             train_reconstruction_error = np.mean(np.square(X_train - train_predictions), axis=(1, 2))

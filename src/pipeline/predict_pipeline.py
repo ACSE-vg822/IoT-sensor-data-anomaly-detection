@@ -27,25 +27,22 @@ class PredictionPipeline:
             return threshold
         except Exception as e:
             raise CustomException(e, sys)
+        
+    def create_sequences(self, data, sequence_length):
+        sequences = []
+        for i in range(len(data) - sequence_length + 1):
+            sequences.append(data[i:i+sequence_length])
+        return np.array(sequences)
 
     def preprocess_input(self, df):
         """ Preprocess the input dataframe using the same scaler used during training. """
         try:
             logging.info("Loading preprocessor object.")
-            preprocessor = load_object(self.config.preprocessor_file_path)
 
-            # Transform the input DataFrame
-            input_data = preprocessor.transform(df)
-
-            # Assuming you need to create sequences of the data, similar to training
-            sequence_length = 10  # Keep this consistent with training
-            def create_sequences(data, sequence_length):
-                sequences = []
-                for i in range(len(data) - sequence_length + 1):
-                    sequences.append(data[i:i+sequence_length])
-                return np.array(sequences)
+            scaler = MinMaxScaler()
+            df_normalized = scaler.fit_transform(df.values)
             
-            input_sequences = create_sequences(input_data, sequence_length)
+            input_sequences = self.create_sequences(df_normalized, sequence_length = 10)
             return input_sequences
 
         except Exception as e:
@@ -56,6 +53,7 @@ class PredictionPipeline:
         try:
             if len(df) < seq_length:
                 return (f"The dataset is too small. Please provide at least {seq_length} rows of data.")
+            
             # Step 1: Load the saved LSTM model
             logging.info(f"Loading model from {self.config.model_file_path}")
             model = load_model(self.config.model_file_path)
@@ -69,10 +67,12 @@ class PredictionPipeline:
                 logging.info("Converting 'Time' column to human-readable format.")
                 df['Time'] = pd.to_datetime(df['Time'], unit='s')  # Assuming Unix timestamps
                 df.set_index('Time', inplace=True)
+            logging.info(df.head())
 
             # Step 4: Preprocess the input dataframe
             logging.info("Preprocessing input data.")
             processed_data = self.preprocess_input(df)
+            logging.info(processed_data.shape)
 
             # Step 5: Predict using the model
             logging.info("Generating predictions on input data.")
@@ -101,11 +101,11 @@ class PredictionPipeline:
             raise CustomException(e, sys)
         
 if __name__ == "__main__":
-    df = pd.read_csv('artifacts/test.csv')
+    df = pd.read_csv('artifacts/data.csv')
     predictor = PredictionPipeline()
     results = predictor.predict(df)
 
-        # Access the anomalies
+    # Access the anomalies
     anomalous_data = results["anomalous_data"]
 
     # Print the anomalies

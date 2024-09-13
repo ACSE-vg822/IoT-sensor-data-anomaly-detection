@@ -11,7 +11,7 @@ def plot_train_data_with_anomalies(df, anomalies_df):
     # Iterate over each sensor/column in the DataFrame
     for col in df.columns:
         # Create a new figure for each column
-        plt.figure(figsize=(15, 8))  # Adjust the figure size as needed
+        plt.figure(figsize=(25, 8))  # Adjust the figure size as needed
         
         # Plot training data for the current column
         plt.plot(df.index, df[col], marker='.', linestyle='-', label=f'Training {col}')
@@ -55,7 +55,7 @@ st.markdown("""
 st.sidebar.title("Anomaly Detection Dashboard")
 st.sidebar.subheader("Choose Your Options")
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
-use_default = st.sidebar.checkbox("Use default dataset (test data from source repo)", value=True)
+use_default = st.sidebar.checkbox("Use default dataset source repo", value=True)
 
 # Main Title
 #st.title("Anomaly Detection in IoT Sensor Data")
@@ -76,7 +76,7 @@ if st.sidebar.button("Start Prediction"):
             st.success("File uploaded successfully!")
     else:
         st.info(f"Using default dataset from source")
-        df = pd.read_csv('artifacts/test.csv')
+        df = pd.read_csv('artifacts/data.csv')
 
     # Convert 'Time' column to human-readable format if it exists
     if 'Time' in df.columns:
