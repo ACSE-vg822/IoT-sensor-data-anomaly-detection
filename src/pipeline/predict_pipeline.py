@@ -5,7 +5,7 @@ import pandas as pd
 from tensorflow.keras.models import load_model
 from src.exception import CustomException
 from src.logger import logging
-from src.utils import save_object, load_object  # Assuming save_object and load_object are present for reusability
+from src.utils import save_object, load_object, convert_and_set_time_index  # Assuming save_object and load_object are present for reusability
 from sklearn.preprocessing import MinMaxScaler
 from dataclasses import dataclass
 
@@ -63,10 +63,12 @@ class PredictionPipeline:
             threshold = self.load_threshold()
 
             # Step 3: Convert the 'time' column to human-readable format
-            if 'Time' in df.columns:
-                logging.info("Converting 'Time' column to human-readable format.")
-                df['Time'] = pd.to_datetime(df['Time'], unit='s')  # Assuming Unix timestamps
-                df.set_index('Time', inplace=True)
+            # if 'Time' in df.columns:
+            #     logging.info("Converting 'Time' column to human-readable format.")
+            #     df['Time'] = pd.to_datetime(df['Time'], unit='s')  # Assuming Unix timestamps
+            #     df.set_index('Time', inplace=True)
+            df = convert_and_set_time_index(df)
+
             logging.info(df.head())
 
             # Step 4: Preprocess the input dataframe

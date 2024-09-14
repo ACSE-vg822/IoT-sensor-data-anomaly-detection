@@ -1,34 +1,10 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 from src.pipeline.predict_pipeline import PredictionPipeline
 import os
 import time  # Import the time module for sleep
-
-# Function to plot training data with anomalies
-def plot_train_data_with_anomalies(df, anomalies_df):
-    # Iterate over each sensor/column in the DataFrame
-    for col in df.columns:
-        # Create a new figure for each column
-        plt.figure(figsize=(25, 8))  # Adjust the figure size as needed
-        
-        # Plot training data for the current column
-        plt.plot(df.index, df[col], marker='.', linestyle='-', label=f'Training {col}')
-        
-        # Plot anomaly points (if any) for the current column
-        if col in anomalies_df.columns:
-            plt.scatter(anomalies_df.index, anomalies_df[col], color='red', marker='o', label=f'Anomalies in {col}', s=100, zorder=5)  # Set the size of the dots (s=100)
-        
-        # Set titles and labels
-        plt.title(f'{col} Sensor Data with Anomalies', fontsize=16)
-        plt.xlabel('Time', fontsize=14)
-        plt.ylabel(col, fontsize=14)
-        plt.legend(fontsize=12)
-        plt.grid(True)
-        
-        # Display the plot in Streamlit
-        st.pyplot(plt)
+from src.utils import plot_train_data_with_anomalies, convert_and_set_time_index
 
 # Custom CSS Styling
 st.markdown("""
@@ -48,6 +24,13 @@ st.markdown("""
         background-color: #fafafa;
         color: #003366;
     }
+    .sample-data-box {
+        background-color: #e6f7ff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #007acc;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -55,11 +38,32 @@ st.markdown("""
 st.sidebar.title("Anomaly Detection Dashboard")
 st.sidebar.subheader("Choose Your Options")
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
-use_default = st.sidebar.checkbox("Use default dataset source repo", value=True)
+use_default = st.sidebar.checkbox("Use default dataset from source repo", value=True)
 
 # Main Title
-#st.title("Anomaly Detection in IoT Sensor Data")
 st.markdown('<div class="title"><h1>Anomaly Detection in IoT Sensor Data</h1></div>', unsafe_allow_html=True)
+
+# Sample Data Box
+#st.markdown('<div class="sample-data-box">', unsafe_allow_html=True)
+st.subheader("Sample Data Format")
+st.markdown("""
+**Default Dataset Description**: The default dataset is collected from a 25 m² room over a period of 24 hours with 2 people present. 
+
+**Expected Data Format**:
+- **Time**: Unix timestamp (seconds) or human readable format
+- **Temperature**: Degrees Celsius (°C)
+- **Humidity**: Percentage (%)
+- **Air Quality**: Index or ppm (specific air quality measurement)
+- **Light**: Lux (lx)
+- **Loudness**: Decibels (dB)
+
+Example:
+| Time                      | Temperature (°C) | Humidity (%) | Air Quality | Light (lx) | Loudness (dB) |
+| -------------             | ---------------- | ------------ | ----------- | ---------- | ------------- |
+| 2021-06-15 18:21:46       | 37.94            | 28.94        | 75          | 644        | 106           |
+| 2021-06-15 18:21:56       | 37.94            | 29.00        | 75          | 645        | 145           |
+""")
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Progress Bar
 progress_bar = st.sidebar.progress(0)
@@ -73,26 +77,24 @@ if st.sidebar.button("Start Prediction"):
             st.stop()
         else:
             df = pd.read_csv(uploaded_file)
+            data_set_for_plot = df.copy()#pd.read_csv(uploaded_file)
             st.success("File uploaded successfully!")
     else:
         st.info(f"Using default dataset from source")
         df = pd.read_csv('artifacts/data.csv')
+        data_set_for_plot = pd.read_csv('artifacts/data.csv')
 
-    # Convert 'Time' column to human-readable format if it exists
-    if 'Time' in df.columns:
-        df['Time'] = pd.to_datetime(df['Time'], unit='s')
-        df.set_index('Time', inplace=True)
+    # Convert 'Time' column to human-readable format
+    df = convert_and_set_time_index(df)
 
     # Display the dataset
     st.subheader("Chosen Dataset Preview")
     st.write(df.head())
 
     # Load the raw dataset
-    raw_df = pd.read_csv('artifacts/data.csv')
-
-    if 'Time' in raw_df.columns:
-        raw_df['Time'] = pd.to_datetime(raw_df['Time'], unit='s')
-        raw_df.set_index('Time', inplace=True)
+    # raw_df = pd.read_csv('artifacts/data.csv')
+    # raw_df = convert_and_set_time_index(raw_df)
+    data_set_for_plot = convert_and_set_time_index(data_set_for_plot)
 
     # Create prediction pipeline
     predictor = PredictionPipeline()
@@ -100,7 +102,7 @@ if st.sidebar.button("Start Prediction"):
     # Simulate progress
     for i in range(100):
         progress_bar.progress(i + 1)
-        time.sleep(0.05)  # Use time.sleep instead of st.sleep
+        time.sleep(0.005)
 
     # Predict anomalies
     results = predictor.predict(df)
@@ -114,7 +116,7 @@ if st.sidebar.button("Start Prediction"):
             st.write(results["anomalous_data"])
 
             # Plot training data with anomalies
-            plot_train_data_with_anomalies(raw_df, results["anomalous_data"])
+            plot_train_data_with_anomalies(data_set_for_plot, results["anomalous_data"])
 
             # Download button for anomalous data
             st.download_button(

@@ -1,8 +1,10 @@
 import os
 import sys
 import numpy as np
+
 from src.exception import CustomException
 from src.logger import logging
+from src.utils import save_object, load_object, convert_and_set_time_index
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -37,10 +39,7 @@ class DataIngestion:
             logging.info('Read the dataset as dataframe')
 
             # Step 2: Set 'Time' column as index
-            if 'Time' in df.columns:
-                logging.info("Converting 'Time' column to human-readable format.")
-                df['Time'] = pd.to_datetime(df['Time'], unit='s')  # Assuming Unix timestamps
-                df.set_index('Time', inplace=True)
+            df = convert_and_set_time_index(df)
 
             # Step 3: Normalize the data using MinMaxScaler
             scaler = MinMaxScaler()
