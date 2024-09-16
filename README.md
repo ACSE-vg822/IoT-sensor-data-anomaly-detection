@@ -1,6 +1,6 @@
 # IoT-sensor-data-anomaly-detection
 
-This repository contains a **Streamlit** app for detecting anomalies in IoT sensor data using an LSTM-based machine learning model. The app allows users to upload sensor data, process it, and visualize detected anomalies against the training data. https://iot-sensor-data-anomaly-detection-zqbd3yzrtsnnhnwhbm4bcs.streamlit.app/
+This repository contains a **Streamlit** app for detecting anomalies in IoT sensor data using an LSTM-based machine learning model. The app allows users to upload sensor data, process it, and visualize detected anomalies. https://iot-sensor-data-anomaly-detection-zqbd3yzrtsnnhnwhbm4bcs.streamlit.app/
 
 ## References
 Data source: https://github.com/hkayann/grove-dataset-generation
