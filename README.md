@@ -32,7 +32,7 @@ Description as taken from the source:
 
 ### Clone the repository
 ```bash
-git clone https://github.com/your-username/IoT-sensor-data-anomaly-detection.git
+git clone https://github.com/ACSE-vg822/IoT-sensor-data-anomaly-detection.git
 cd IoT-sensor-data-anomaly-detection-iot
 python -m venv venv
 source venv/bin/activate
